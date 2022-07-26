@@ -1,0 +1,5 @@
+.. _lfrac:
+
+Land Fraction
+=============
+

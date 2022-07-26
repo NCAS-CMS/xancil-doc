@@ -1,0 +1,5 @@
+.. _vegfrac:
+
+Vegetation Fractions
+====================
+

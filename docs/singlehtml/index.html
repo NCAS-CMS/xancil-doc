@@ -1,0 +1,469 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Xancil 0.58 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="index.html#document-index">Xancil 0.58 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="xancil-version-version">
+<h1>Xancil (version 0.58)<a class="headerlink" href="#xancil-version-version" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<span id="document-introduction"></span><div class="section" id="introduction">
+<span id="id1"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Xancil is a X-windows based application for creating Unified Model ancillary files from netCDF input files. The current version supports the creation of the following atmosphere ancillary files</p>
+<ul class="simple">
+<li><p>Ozone</p></li>
+<li><p>Soil Moisture and Snow Depth</p></li>
+<li><p>Deep Soil Temperatures</p></li>
+<li><p>Soil Parameters</p></li>
+<li><p>Vegetation Parameters</p></li>
+<li><p>Vegetation Fractions</p></li>
+<li><p>Vegetation Functional Types</p></li>
+<li><p>Disturbed Vegetation Fraction</p></li>
+<li><p>Sea Surface Temperatures</p></li>
+<li><p>Sea Ice</p></li>
+<li><p>Orography</p></li>
+<li><p>Land/Sea Mask</p></li>
+<li><p>Land Fraction</p></li>
+<li><p>Multi-level User fields</p></li>
+<li><p>Single-level User fields</p></li>
+</ul>
+<p>along with these ocean ancillary files</p>
+<ul class="simple">
+<li><p>Reference SST, SSS, Air-Temp &amp; Ice-Depth</p></li>
+<li><p>Flux Correction Fields</p></li>
+<li><p>Multi-level User fields</p></li>
+<li><p>Single-level User fields</p></li>
+</ul>
+<p>and finally <em>Generalised Ancillary Files</em>  can be used for files which don’t fit into the above categories.</p>
+<p>Ancillary files can be created for use in both old and new dynamics versions of the UM, and can be in 64 bit IEEE format, including the option of 32 bit data packing, or 32 bit IEEE format. The files can be written in either big or little endian format. Well formed IO (WFIO) ancillary files can be created with a user specified sector size. See the <a class="reference internal" href="index.html#config"><span class="std std-ref">Configuration panels</span></a> section for further details.</p>
+<p>Xancil will use the input netCDF grid information as the output grid for the ancillary files, so any data interpolation should be done before using Xancil. It doesn’t matter whether the input latitude coordinate goes from north to south or south to north, Xancil will ensure the ancillary files use the correct orientation for the specified version of the UM. Similarly longitude values of global grids will be adjusted to the (0,360) degree range expected by the UM. So for example if the input netCDF longitude coordinate is (-180,180) degrees, it does not have to be adjusted for use with Xancil. Ocean ancillary files have two extra wrap-around points in the longitude direction, if the input netCDF file doesn’t include these points they will be added by Xancil. Conversely if the input netCDF file includes wrap-around points then Xancil will remove them when creating atmosphere ancillary files. Xancil will create ancillary files on a limited area rotated pole grid, if the input netCDF file includes attributes to define the rotated pole. There are two methods of defining rotated poles which Xancil recognises, the first is to use a two-element floating point attribute <code class="docutils literal notranslate"><span class="pre">north_pole</span></code> which specifies the (longitude,latitude) coordinates of the rotated north pole. This attribute is created by Xconv when creating rotated pole netCDF files. The second method is to use the <a class="reference external" href="http://cfconventions.org/">netCDF CF Metadata</a> convention, where the variables on a rotated grid define an attribute <code class="docutils literal notranslate"><span class="pre">grid_mapping</span></code>, which specifies the name of another variable which supplies the coordinates of the rotated north pole. See the <a class="reference external" href="http://cfconventions.org/Data/cf-conventions/cf-conventions-1.6/build/cf-conventions.html#grid-mappings-and-projections">CF standard documentation</a> for further details.</p>
+<p>The current state of any information entered into the Xancil panels can be saved as a job file using one of the <em>Save Job</em>  or <em>Save Job As</em>  buttons and reloaded at a later date using the <em>Load Job</em>  button. The job file consists of a list of <a class="reference external" href="http://www.tcl.tk/">Tcl</a> variables each of which corresponds to an input in a Xancil panel. The <em>Save Namelist</em>  or <em>Save Namelist As</em>  buttons convert these Tcl variables into a Fortran namelist file and this is used as input to an executable file, which creates the UM ancillary files. By default this executable is called mkancil and is located in the same directory as the xancil executable. The default name for the namelist file is xancil.namelist but this can be changed by using the <em>Save Namelist As</em>  button. The <em>Create Anc. files</em>  button will create the namelist file and automatically run mkancil to create the UM ancillary files. The <em>Quit</em>  button will quit Xancil, any input data will be lost unless a job file has been saved.</p>
+<p>Xancil can be given the following command line arguments:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">execute</span>             <span class="p">:</span> <span class="n">Create</span> <span class="n">namelist</span> <span class="ow">and</span> <span class="n">run</span> <span class="n">ancillary</span> <span class="n">executable</span>
+<span class="o">-</span><span class="n">x</span>                   <span class="p">:</span> <span class="n">As</span> <span class="o">-</span><span class="n">execute</span>
+<span class="o">-</span><span class="n">execname</span> <span class="n">execfile</span>   <span class="p">:</span> <span class="n">Specify</span> <span class="n">pathname</span> <span class="n">of</span> <span class="n">ancillary</span> <span class="n">executable</span>
+                       <span class="p">(</span><span class="n">default</span> <span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">n02</span><span class="o">/</span><span class="n">n02</span><span class="o">/</span><span class="n">hum</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">mkancil0</span><span class="o">.</span><span class="mi">50</span><span class="p">)</span>
+<span class="o">-</span><span class="n">xn</span> <span class="n">execfile</span>         <span class="p">:</span> <span class="n">As</span> <span class="o">-</span><span class="n">execname</span>
+<span class="o">-</span><span class="n">jobfile</span> <span class="n">jobfile</span>     <span class="p">:</span> <span class="n">Load</span> <span class="n">jobfile</span> <span class="n">into</span> <span class="n">xancil</span>
+<span class="o">-</span><span class="n">j</span> <span class="n">jobfile</span>           <span class="p">:</span> <span class="n">As</span> <span class="o">-</span><span class="n">jobfile</span>
+<span class="o">-</span><span class="n">namelist</span> <span class="n">namelist</span>   <span class="p">:</span> <span class="n">Create</span> <span class="n">namelist</span> <span class="n">file</span> <span class="n">called</span> <span class="n">namelist</span>
+                       <span class="p">(</span><span class="n">default</span> <span class="n">xancil</span><span class="o">.</span><span class="n">namelist</span><span class="p">)</span>
+<span class="o">-</span><span class="n">nl</span> <span class="n">namelist</span>         <span class="p">:</span> <span class="n">As</span> <span class="o">-</span><span class="n">namelist</span>
+<span class="o">-</span><span class="n">namelisttype</span> <span class="n">nltype</span> <span class="p">:</span> <span class="n">Specify</span> <span class="n">namelist</span> <span class="nb">type</span><span class="p">,</span> <span class="n">either</span> <span class="n">old</span> <span class="ow">or</span> <span class="n">f90</span>
+                       <span class="p">(</span><span class="n">default</span> <span class="n">f90</span><span class="p">)</span>
+<span class="o">-</span><span class="n">script</span> <span class="n">script</span>       <span class="p">:</span> <span class="n">Use</span> <span class="n">xancil</span> <span class="n">to</span> <span class="n">run</span> <span class="n">tcl</span> <span class="n">script</span>
+<span class="o">-</span><span class="n">sc</span> <span class="n">script</span>           <span class="p">:</span> <span class="n">As</span> <span class="o">-</span><span class="n">script</span>
+<span class="o">-</span><span class="n">usage</span>               <span class="p">:</span> <span class="n">Print</span> <span class="n">this</span> <span class="n">message</span>
+</pre></div>
+</div>
+<p>Examples of command line usage are, run Xancil with the specified job file pre-loaded</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xancil</span> <span class="o">-</span><span class="n">j</span> <span class="n">xancil_example</span><span class="o">.</span><span class="n">job</span>
+</pre></div>
+</div>
+<p>A previously saved job file can be loaded into Xancil, the namelist file created and the mkancil executable run to create the UM ancillary files without using the X-windows interface</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xancil</span> <span class="o">-</span><span class="n">j</span> <span class="n">xancil_example</span><span class="o">.</span><span class="n">job</span> <span class="o">-</span><span class="n">x</span>
+</pre></div>
+</div>
+<p>Alternatively the mkancil executable can be run directly with the saved namelist file as input</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkancil</span> <span class="o">&lt;</span> <span class="n">xancil</span><span class="o">.</span><span class="n">namelist</span>
+</pre></div>
+</div>
+<p>More elaborate scripting is also possible see <a class="reference internal" href="index.html#examples"><span class="std std-ref">Examples of non-interactive Xancil usage</span></a>.</p>
+</div>
+<span id="document-download"></span><div class="section" id="download-xancil">
+<span id="download"></span><h2>Download Xancil<a class="headerlink" href="#download-xancil" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="updated-version-0-50-february-19-2010">
+<span id="version-0-50"></span><h3>Updated Version 0.50 (February 19 2010)<a class="headerlink" href="#updated-version-0-50-february-19-2010" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Date/times in PP headers for vegetation functional types ancillary file were incorrect.</p></li>
+</ul>
+<p>Download a gzipped tarball of the Mkancil source code</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/3303feeb9c47e4932229da090766abb0/mkancil0.50_source.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Mkancil</span> <span class="pre">source</span></code></a></p></li>
+</ul>
+<p>Download gzipped tarballs of Xancil/Mkancil executables, for various platforms</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/55b6ce274ad0bea38a727ce5674e2f3b/xancil0.50_linux_x86.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/e8fcbe663895865617de758289a82fb1/xancil0.50_linux_x86_64.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86_64</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/d0e0d4b0563856394507e316798ac228/xancil0.50_solaris_x86.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Solaris</span> <span class="pre">x86</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/9c5794597a10d89f318bfcab2107eed3/xancil0.50_solaris_sparc.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Solaris</span> <span class="pre">Sparc</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/6768fa39c7bcc6a4d9ad6eb41fc26120/xancil0.50_ibm_aix_powerpc.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">AIX</span> <span class="pre">Powerpc</span></code></a></p></li>
+</ul>
+</div>
+<div class="section" id="version-0-51-july-01-2011">
+<span id="version-0-51"></span><h3>Version 0.51 (July 01 2011)<a class="headerlink" href="#version-0-51-july-01-2011" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>General bug fixes</p></li>
+<li><p>Add support to read netCDF4 input files</p></li>
+<li><p>Add slab model option to generalised ancillary file creation section</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-52-october-13-2011">
+<span id="version-0-52"></span><h3>Version 0.52 (October 13 2011)<a class="headerlink" href="#version-0-52-october-13-2011" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Add orographic gradient x/y components to orography section</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-53-august-23-2012">
+<span id="version-0-53"></span><h3>Version 0.53 (August 23 2012)<a class="headerlink" href="#version-0-53-august-23-2012" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Add option to select horizontal grid type in generalised ancillary file creation section to enable correct creation of ancillary files on u,v grid</p></li>
+<li><p>Add support for variable resolution grids</p></li>
+<li><p>Add unfiltered orography to orography section</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-54-november-28-2012">
+<span id="version-0-54"></span><h3>Version 0.54 (November 28 2012)<a class="headerlink" href="#version-0-54-november-28-2012" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed problem with reading grid dimensions from fields which don’t exist as they aren’t being output</p></li>
+<li><p>Fixed problem with reading seconds expressed as a real number in the units attribute</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-55-march-05-2015">
+<span id="version-0-55"></span><h3>Version 0.55 (March 05 2015)<a class="headerlink" href="#version-0-55-march-05-2015" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Updated CF standard_names to include all names used by CF-python</p></li>
+<li><p>Included later UM versions (up-to vn9.2) of STASHmaster information</p></li>
+<li><p>Updated font handling to work better with tcl/tk versions greater than 8.4</p></li>
+<li><p>Add option to create calendar independent ancillary files</p></li>
+</ul>
+<p>Download a gzipped tarball of the Mkancil source code</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/78db5fdbd6fb01c738140cbff1b3f36d/mkancil0.55_source.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Mkancil</span> <span class="pre">source</span></code></a></p></li>
+</ul>
+<p>Download gzipped tarballs (Linux) or a dmg file (OS X) of Xancil/Mkancil executables</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/2cb6239fe07bdff45f3784fad630c1e5/xancil0.55_linux_x86_64.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86_64</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/fc760971c2299695a8ae03e8de2e52b7/xancil0.55_osx_x86.dmg"><code class="xref download docutils literal notranslate"><span class="pre">OS</span> <span class="pre">X</span> <span class="pre">x86</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/10112cf7d5293a69102a8793740bfae2/xancil0.55_osx_x86_64.dmg"><code class="xref download docutils literal notranslate"><span class="pre">OS</span> <span class="pre">X</span> <span class="pre">x86_64</span></code></a></p></li>
+</ul>
+</div>
+<div class="section" id="version-0-56-november-15-2016">
+<span id="version-0-56"></span><h3>Version 0.56 (November 15 2016)<a class="headerlink" href="#version-0-56-november-15-2016" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>General bug fixes</p></li>
+<li><p>Included later UM versions (up-to vn10.6) of STASHmaster information</p></li>
+<li><p>Updates to allow multi-level ancillaries to be created for ENDGame configurations</p></li>
+</ul>
+<p>Download a gzipped tarball of the Mkancil source code</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/186ae3f1502c1c87d53049213d5043f4/mkancil0.56_source.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Mkancil</span> <span class="pre">source</span></code></a></p></li>
+</ul>
+<p>Download gzipped tarballs (Linux) or a dmg file (OS X) of Xancil/Mkancil executables</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/f840c7929a32de3942812459fb835d13/xancil0.56_linux_x86.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/5cf296368119a22961996f682c522433/xancil0.56_linux_x86_64.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86_64</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/64f27b181a0534850ada5a6961c719a3/xancil0.56_osx_x86.dmg"><code class="xref download docutils literal notranslate"><span class="pre">OS</span> <span class="pre">X</span> <span class="pre">x86</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/e2191522f5a57cb6b2031082e0a7abd6/xancil0.56_osx_x86_64.dmg"><code class="xref download docutils literal notranslate"><span class="pre">OS</span> <span class="pre">X</span> <span class="pre">x86_64</span></code></a></p></li>
+</ul>
+</div>
+<div class="section" id="version-0-57-february-01-2017">
+<span id="version-0-57"></span><h3>Version 0.57 (February 01 2017)<a class="headerlink" href="#version-0-57-february-01-2017" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed bug writing user ancillary files</p></li>
+<li><p>Changes to allow creation of ancillary files &gt; 16 GBytes</p></li>
+</ul>
+<p>Download a gzipped tarball of the Mkancil source code</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/1775acbd88fdc3b4b3e6b16a21a84d20/mkancil0.57_source.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Mkancil</span> <span class="pre">source</span></code></a></p></li>
+</ul>
+<p>Download gzipped tarballs of Xancil/Mkancil executables</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/9de1fa0beada593467bf3c384e182a83/xancil0.57_linux_x86.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/dd9a0f31b360867af54bbf735f13d1b9/xancil0.57_linux_x86_64.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86_64</span></code></a></p></li>
+</ul>
+</div>
+<div class="section" id="version-0-58-may-13-2020">
+<span id="version-0-58"></span><h3>Version 0.58 (May 13 2020)<a class="headerlink" href="#version-0-58-may-13-2020" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>General bug fixes</p></li>
+<li><p>Included later UM versions (up-to vn11.6) of STASHmaster information</p></li>
+<li><p>Improve support for ENDGame grids</p></li>
+<li><p>Improve handling of multilevel fields</p></li>
+<li><p>Add ability to specify pseudo levels (e.g. surfaces types)</p></li>
+<li><p>Improve metadata auto completion in generalised ancillary file panel</p></li>
+</ul>
+<p>Download a gzipped tarball of the Mkancil source code</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/039a81787edece5bdc084e6f5e7cfe6b/mkancil0.58_source.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Mkancil</span> <span class="pre">source</span></code></a></p></li>
+</ul>
+<p>Download gzipped tarballs of Xancil/Mkancil executables</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/38c6a54fd9e36420457586fc36e41384/xancil0.58_linux_x86.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/ae8b66c36b42c5d8d2fd7cc480bbc79f/xancil0.58_linux_x86_64.tar.gz"><code class="xref download docutils literal notranslate"><span class="pre">Linux</span> <span class="pre">x86_64</span></code></a></p></li>
+</ul>
+<p>To compile Mkancil read the README file contained in the tar file. If you modify Mkancil then Xancil options <code class="docutils literal notranslate"><span class="pre">-execname</span></code> or <code class="docutils literal notranslate"><span class="pre">-xn</span></code> need to be used to specify the new executable pathname. By default Xancil expects to find Mkancil in the same directory as itself.</p>
+</div>
+</div>
+<span id="document-config"></span><div class="section" id="configuration-panels">
+<span id="config"></span><h2>Configuration panels<a class="headerlink" href="#configuration-panels" title="Permalink to this headline">¶</a></h2>
+<p>There are three configuration panels, the first one is for specifying the type and output format of the ancillary files along with reading in the netCDF input files and any user STASHmaster files needed.</p>
+<p>The version number specified is used in the ancillary file headers and also determines what sort of vertical levels are used. For version numbers less than 5.0 the vertical coordinate type is hybrid sigma pressure, otherwise the vertical coordinate type is hybrid height. The calendar type can be either Gregorian or 360 day years. Ancillary files can written out in either 32 bit or 64 bit IEEE format, with 64 bit files having the option of packing the data as 32 bit values. Packing the data will make the file almost 50% smaller but will also lose floating point accuracy. Ancillary files can also be written in either big or little endian format. The size and endianness of the data needs to be chosen to match what the UM expects, on HECToR and at the Met Office this is 64 bit big endian data. HECToR uses byte swapping code to read/write big endian data as its native format is little endian. Well formed ancillary files have their data records written out in multiples of the given sector size, this can have performance advantages on certain machines and also makes the files slightly larger. The Xancil default is to output well formed ancillary files with a sector size of 2048, this what the Met Office use. There is little advantage playing around with this parameter, either use the default or switch it off. Warning later versions of the UM won’t work unless the ancillary file is well-formed.</p>
+<img alt="General configuration panel - settings" src="_images/xancil_0.50_general_config1.png" />
+<p>NetCDF files can be pre-loaded in this section of the configuration panel, this allows the user to select the input netCDF file via a drop down menu when using the ancillary file creation panels.</p>
+<img alt="General configuration panel - netCDF files" src="_images/xancil_0.50_general_config2.png" />
+<p>Any user STASHmaster files needed in the creation of ancillary files can be loaded in this section of the configuration panel. These files add to or override any values found in the default STASHmaster files which are built into Xancil. STASHmaster files are used when creating user and generalised ancillary files and tell Xancil what the name of the ancillary field is, what the STASH and PP codes are, what the level type is, what the data type is and finally what part of the field, if any, is to be masked. All this information, except the field name, can be over-ridden by the user if necessary.</p>
+<img alt="General configuration panel - STASH master files" src="_images/xancil_0.50_general_config3.png" />
+<p>The second configuration panel is for defining the vertical grid structure of the ancillary files and supplying a global time definition.</p>
+<p>If the following atmosphere ancillary files are being created, ozone, multi-level user ancillaries or generalised ancillaries with multi-level data, then the atmosphere vertical levels need to be defined. There are three options available to define these levels. Using the first option vertical levels can be defined via a namelist file, entering the number of model levels and the number of ozone levels and specifying whether the input data stored in the netCDF files is ordered from the bottom of the atmosphere upwards or from the top of the atmosphere downwards.</p>
+<img alt="Grid configuration panel - Specify atmosphere vertical levels" src="_images/xancil_0.50_grid_config1.png" />
+<p>The format of the vertical namelist file differs depending on whether the model version is using hybrid sigma pressure coordinates or hybrid height coordinates. In the first case the namelist group name is <code class="docutils literal notranslate"><span class="pre">VERTICAL</span></code> and can be extracted from the RECONA file generated by the UMUI for the job in which the ancillary files created are to be used. Note reconfiguration must be turned on in the UMUI to create a RECONA file. For example a vertical namelist file for a 19 level HadAM3 run would look like this</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&amp;</span><span class="n">VERTICAL</span>
+<span class="n">METH_LEV_CALC</span><span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+<span class="n">ETAH</span><span class="o">=</span> <span class="mf">1.000000000000</span><span class="p">,</span><span class="mf">0.994000000000</span><span class="p">,</span><span class="mf">0.956000000000</span><span class="p">,</span>
+<span class="mf">0.905000000000</span><span class="p">,</span><span class="mf">0.835000000000</span><span class="p">,</span><span class="mf">0.750000000000</span><span class="p">,</span><span class="mf">0.650000000000</span><span class="p">,</span><span class="mf">0.550000000000</span><span class="p">,</span>
+<span class="mf">0.460000000000</span><span class="p">,</span><span class="mf">0.385000000000</span><span class="p">,</span><span class="mf">0.325000000000</span><span class="p">,</span><span class="mf">0.275000000000</span><span class="p">,</span><span class="mf">0.225000000000</span><span class="p">,</span>
+<span class="mf">0.175000000000</span><span class="p">,</span><span class="mf">0.125000000000</span><span class="p">,</span><span class="mf">0.075000000000</span><span class="p">,</span><span class="mf">0.040000000000</span><span class="p">,</span><span class="mf">0.020000000000</span><span class="p">,</span>
+<span class="mf">0.010000000000</span><span class="p">,</span><span class="mf">0.000500000000</span><span class="p">,</span>
+<span class="n">MIN_PRS_HLEV</span><span class="o">=</span> <span class="mi">17</span><span class="p">,</span> <span class="n">MAX_SIG_HLEV</span><span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+<span class="o">&amp;</span><span class="n">END</span>
+</pre></div>
+</div>
+<p>For the second case of hybrid height coordinates the namelist group name is <code class="docutils literal notranslate"><span class="pre">VERTLEVS</span></code> and the namelist file needed is the same as that used in the UM run for which the ancillary files are being generated. The location of this file is referenced in the UMUI output file INITHIS under the variable name <code class="docutils literal notranslate"><span class="pre">VERT_LEV</span></code>. If Xancil is being run on a different machine to that which is running the UM, then the namelist file will need to be copied over. For example a vertical namelist file for a 38 level HadGAM run would look like this</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&amp;</span><span class="n">VERTLEVS</span>
+ <span class="n">Z_TOP_OF_MODEL</span><span class="o">=</span> <span class="mf">39254.833576</span><span class="p">,</span>
+ <span class="n">FIRST_CONSTANT_R_RHO_LEVEL</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+ <span class="n">ETA_THETA</span><span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">0005095</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0020380</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0045854</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0081519</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0127373</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">0183417</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0249651</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0326074</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0412688</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0509491</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">0616485</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0733668</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0861040</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0998603</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1146356</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">1304298</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1472430</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1650752</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1839264</span><span class="p">,</span>  <span class="o">.</span><span class="mi">2037966</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">2246857</span><span class="p">,</span>  <span class="o">.</span><span class="mi">2465938</span><span class="p">,</span>  <span class="o">.</span><span class="mi">2695209</span><span class="p">,</span>  <span class="o">.</span><span class="mi">2934670</span><span class="p">,</span>  <span class="o">.</span><span class="mi">3184321</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">3444162</span><span class="p">,</span>  <span class="o">.</span><span class="mi">3714396</span><span class="p">,</span>  <span class="o">.</span><span class="mi">3998142</span><span class="p">,</span>  <span class="o">.</span><span class="mi">4298913</span><span class="p">,</span>  <span class="o">.</span><span class="mi">4620737</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">4968308</span><span class="p">,</span>  <span class="o">.</span><span class="mi">5347160</span><span class="p">,</span>  <span class="o">.</span><span class="mi">5763897</span><span class="p">,</span>  <span class="o">.</span><span class="mi">6230643</span><span class="p">,</span>  <span class="o">.</span><span class="mi">6772068</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">7443435</span><span class="p">,</span>  <span class="o">.</span><span class="mi">8383348</span><span class="p">,</span> <span class="mf">1.0000000</span><span class="p">,</span>
+ <span class="n">ETA_RHO</span><span class="o">=</span>
+<span class="o">.</span><span class="mi">0002547</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0012737</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0033117</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0063686</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0104446</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">0155395</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0216534</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0287863</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0369381</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0461090</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">0562988</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0675076</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0797354</span><span class="p">,</span>  <span class="o">.</span><span class="mi">0929822</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1072479</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">1225327</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1388364</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1561591</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1745008</span><span class="p">,</span>  <span class="o">.</span><span class="mi">1938615</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">2142411</span><span class="p">,</span>  <span class="o">.</span><span class="mi">2356398</span><span class="p">,</span>  <span class="o">.</span><span class="mi">2580574</span><span class="p">,</span>  <span class="o">.</span><span class="mi">2814940</span><span class="p">,</span>  <span class="o">.</span><span class="mi">3059496</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">3314242</span><span class="p">,</span>  <span class="o">.</span><span class="mi">3579279</span><span class="p">,</span>  <span class="o">.</span><span class="mi">3856269</span><span class="p">,</span>  <span class="o">.</span><span class="mi">4148527</span><span class="p">,</span>  <span class="o">.</span><span class="mi">4459825</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">4794523</span><span class="p">,</span>  <span class="o">.</span><span class="mi">5157734</span><span class="p">,</span>  <span class="o">.</span><span class="mi">5555529</span><span class="p">,</span>  <span class="o">.</span><span class="mi">5997270</span><span class="p">,</span>  <span class="o">.</span><span class="mi">6501355</span><span class="p">,</span>
+<span class="o">.</span><span class="mi">7107751</span><span class="p">,</span>  <span class="o">.</span><span class="mi">7913392</span><span class="p">,</span>  <span class="o">.</span><span class="mi">9191674</span><span class="p">,</span>
+<span class="o">&amp;</span><span class="n">END</span>
+</pre></div>
+</div>
+<p>The second and third options for defining atmosphere vertical levels use the <a class="reference external" href="http://cfconventions.org/">netCDF CF Metadata</a> convention. Either specify one netCDF dimension to define the vertical levels for all ancillary files or every netCDF field used to generate an ancillary file with multiple levels will define the needed vertical coordinates. The netCDF dimension used to define the vertical levels must have a <code class="docutils literal notranslate"><span class="pre">standard_name</span></code> attribute of either <code class="docutils literal notranslate"><span class="pre">atmosphere_hybrid_sigma_pressure_coordinate</span></code> or <code class="docutils literal notranslate"><span class="pre">atmosphere_hybrid_height_coordinate</span></code>, depending on the coordinate type. The dimension must also include the <code class="docutils literal notranslate"><span class="pre">formula_terms</span></code> attribute used to associate terms in the definition of the vertical coordinate with variables in a netCDF file. See the <a class="reference external" href="http://cfconventions.org/Data/cf-conventions/cf-conventions-1.6/build/cf-conventions.html#dimensionless-vertical-coordinate">CF standard documentation</a> for further details. If the dimension includes the <code class="docutils literal notranslate"><span class="pre">bounds</span></code> attribute, then this is used to calculate the half level values needed in the ancillary file PP headers. If this information is not available then these PP headers will be set to zero. If hybrid height coordinates are being defined using option 3, then whether the coordinate defines theta or rho levels needs to be specified. If an ozone field is being created which has a different number of levels to the standard number of model levels, the number of ozone levels should also be entered.</p>
+<img alt="Grid configuration panel - netCDF atmosphere vertical levels" src="_images/xancil_0.50_grid_config2.png" />
+<p>If the following ocean ancillary files are being created multi-level user ancillaries or generalised ancillaries with multi-level data, then the ocean depth levels need to be defined. Xancil expects either the specified vertical netCDF dimension or the netCDF field used to create the multiple level ancillary field, to contain the depth levels with units of metres. It doesn’t matter if the netCDF dimension is defined from the top of the ocean down or from the bottom of the ocean up, or if the depth levels are given as positive or negative values, Xancil will convert the dimension and the field into the correct ancillary format.</p>
+<img alt="Grid configuration panel - netCDF ocean vertical levels" src="_images/xancil_0.50_grid_config3.png" />
+<p>Ancillary files soil moisture and snow depth, deep soil temperatures and generalised ancillary field with data on soil levels, need to have the thickness of the deep soil levels defined. This section of the grid configuration panel allows these values to be specified. By default the standard four soil level thicknesses used in most UM runs are defined.</p>
+<img alt="Grid configuration panel - specify deep soil levels" src="_images/xancil_0.50_grid_config4.png" />
+<p>Although each time dependent ancillary file creation panel can define the dates for its file, a global date definition can also be specified in the grid configuration panel. This makes specifying the same dates for multiple files easier, and any file which has a different date can override the values set in this panel. It is not necessary to specify the ancillary file dates if the dates in the netCDF file are used. The specified dates can either be used to ignore the netCDF dates and replace them, or they can be used to extract a subset of the fields in the input netCDF file. The dates are specified by entering a start date, the number of times needed and the value of the time interval. If the time interval unit is months and the answer to “Define monthly mean to be middle of the month?” is yes, then the date of each time in the ancillary file will be the middle of the month. This is useful if a ancillary file is created with monthly mean data and uses the Gregorian calendar.</p>
+<img alt="Grid configuration panel - specify ancillary file dates" src="_images/xancil_0.50_grid_config5.png" />
+<p>The third configuration panel can be used to select which ancillary files are to be created. Although each individual ancillary creation panel can be used to switch on or off that ancillary file, it can sometimes be more convenient to select ancillary files via this panel.</p>
+<img alt="Select ancillary files to be created panel" src="_images/xancil_0.50_select_ancil.png" />
+</div>
+<span id="document-general_anc"></span><div class="section" id="general-ancillary-panel-information">
+<span id="general-anc"></span><h2>General ancillary panel information<a class="headerlink" href="#general-ancillary-panel-information" title="Permalink to this headline">¶</a></h2>
+</div>
+<span id="document-specific_anc"></span><div class="section" id="specific-ancillary-panel-information">
+<span id="specific-anc"></span><h2>Specific ancillary panel information<a class="headerlink" href="#specific-ancillary-panel-information" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<span id="document-ozone"></span><div class="section" id="ozone">
+<span id="id1"></span><h3>Ozone<a class="headerlink" href="#ozone" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-smow"></span><div class="section" id="soil-moisture-and-snow-depth">
+<span id="smow"></span><h3>Soil Moisture and Snow Depth<a class="headerlink" href="#soil-moisture-and-snow-depth" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-slt"></span><div class="section" id="deep-soil-temperatures">
+<span id="slt"></span><h3>Deep Soil Temperatures<a class="headerlink" href="#deep-soil-temperatures" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-soil"></span><div class="section" id="soil-parameters">
+<span id="soil"></span><h3>Soil Parameters<a class="headerlink" href="#soil-parameters" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-veg"></span><div class="section" id="vegetation-parameters">
+<span id="veg"></span><h3>Vegetation Parameters<a class="headerlink" href="#vegetation-parameters" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-vegfrac"></span><div class="section" id="vegetation-fractions">
+<span id="vegfrac"></span><h3>Vegetation Fractions<a class="headerlink" href="#vegetation-fractions" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-vegfunc"></span><div class="section" id="vegetation-functional-types">
+<span id="vegfunc"></span><h3>Vegetation Functional Types<a class="headerlink" href="#vegetation-functional-types" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-vegdist"></span><div class="section" id="disturbed-vegetation-fraction">
+<span id="vegdist"></span><h3>Disturbed Vegetation Fraction<a class="headerlink" href="#disturbed-vegetation-fraction" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-sst"></span><div class="section" id="sea-surface-temperatures">
+<span id="sst"></span><h3>Sea Surface Temperatures<a class="headerlink" href="#sea-surface-temperatures" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-ice"></span><div class="section" id="sea-ice">
+<span id="ice"></span><h3>Sea Ice<a class="headerlink" href="#sea-ice" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-orog"></span><div class="section" id="orography">
+<span id="orog"></span><h3>Orography<a class="headerlink" href="#orography" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-mask"></span><div class="section" id="land-sea-mask">
+<span id="mask"></span><h3>Land/Sea Mask<a class="headerlink" href="#land-sea-mask" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-lfrac"></span><div class="section" id="land-fraction">
+<span id="lfrac"></span><h3>Land Fraction<a class="headerlink" href="#land-fraction" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-ts1"></span><div class="section" id="reference-sst-sss-air-temp-ice-depth">
+<span id="ts1"></span><h3>Reference SST, SSS, Air-Temp &amp; Ice-Depth<a class="headerlink" href="#reference-sst-sss-air-temp-ice-depth" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-flux"></span><div class="section" id="flux-correction-fields">
+<span id="flux"></span><h3>Flux Correction Fields<a class="headerlink" href="#flux-correction-fields" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-genanc"></span><div class="section" id="generalised-ancillary-files">
+<span id="genanc"></span><h3>Generalised Ancillary Files<a class="headerlink" href="#generalised-ancillary-files" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-usrmulti"></span><div class="section" id="multi-level-user-fields">
+<span id="usrmulti"></span><h3>Multi-level User Fields<a class="headerlink" href="#multi-level-user-fields" title="Permalink to this headline">¶</a></h3>
+</div>
+<span id="document-usrancil"></span><div class="section" id="single-level-user-fields">
+<span id="usrancil"></span><h3>Single-level User Fields<a class="headerlink" href="#single-level-user-fields" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+<span id="document-mod_mkancil"></span><div class="section" id="modify-mkancil-source-code">
+<span id="mod-mkancil"></span><h2>Modify Mkancil source code<a class="headerlink" href="#modify-mkancil-source-code" title="Permalink to this headline">¶</a></h2>
+</div>
+<span id="document-examples"></span><div class="section" id="examples-of-non-interactive-xancil-usage">
+<span id="examples"></span><h2>Examples of non-interactive Xancil usage<a class="headerlink" href="#examples-of-non-interactive-xancil-usage" title="Permalink to this headline">¶</a></h2>
+<p>To read in a previously saved job file and create the UM ancillary files defined by it enter this command line</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xancil</span> <span class="o">-</span><span class="n">j</span> <span class="n">example</span><span class="o">.</span><span class="n">job</span> <span class="o">-</span><span class="n">x</span>
+</pre></div>
+</div>
+<p>As there are a lot of variables defined in a job file the best approach to scripting Xancil is to create an initial job file which has most of the setup you need and then only change the variables which are different in the script file. For example to create multiple ozone ancillary files from different netCDF input files, assuming everything else needed has been setup using Xancil and saved to a job file called ozone.job, use this script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/bin/sh
+
+# Create xancil script file (Needs to be written in tcl)
+
+cat &lt;&lt; \EOF &gt; ozone.tcl
+
+# Load in initial job file
+
+source &quot;ozone.job&quot;
+
+set n 12
+
+# Create n ozone ancillary files
+
+set i 1
+
+while {$i &lt;= $n} {
+
+   # Overwrite ozone input and output file names
+
+   set ozone(file_in) ozone_$i.nc
+   set ozone(file_out) ozone_$i
+
+   # Create namelist file from Tcl variables
+
+   create_namelist ozone.namelist
+
+   # Run executable to create ozone ancillary file
+
+   run_exec
+
+   incr i
+}
+EOF
+
+# Run xancil with the above script file
+
+xancil -sc ozone.tcl
+</pre></div>
+</div>
+<p>Run this script and Xancil will create 12 ozone ancillary files from 12 netCDF files.</p>
+</div>
+</div>
+</div>
+<div class="section" id="search">
+<h1>Search<a class="headerlink" href="#search" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html#document-index">Table of Contents</a></h3>
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-introduction">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-download">Download Xancil</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#updated-version-0-50-february-19-2010">Updated Version 0.50 (February 19 2010)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-0-51-july-01-2011">Version 0.51 (July 01 2011)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-0-52-october-13-2011">Version 0.52 (October 13 2011)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-0-53-august-23-2012">Version 0.53 (August 23 2012)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-0-54-november-28-2012">Version 0.54 (November 28 2012)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-0-55-march-05-2015">Version 0.55 (March 05 2015)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-0-56-november-15-2016">Version 0.56 (November 15 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-0-57-february-01-2017">Version 0.57 (February 01 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-0-58-may-13-2020">Version 0.58 (May 13 2020)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-config">Configuration panels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-general_anc">General ancillary panel information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-specific_anc">Specific ancillary panel information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-ozone">Ozone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-smow">Soil Moisture and Snow Depth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-slt">Deep Soil Temperatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-soil">Soil Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-veg">Vegetation Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-vegfrac">Vegetation Fractions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-vegfunc">Vegetation Functional Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-vegdist">Disturbed Vegetation Fraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-sst">Sea Surface Temperatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-ice">Sea Ice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-orog">Orography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-mask">Land/Sea Mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-lfrac">Land Fraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-ts1">Reference SST, SSS, Air-Temp &amp; Ice-Depth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-flux">Flux Correction Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-genanc">Generalised Ancillary Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-usrmulti">Multi-level User Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-usrancil">Single-level User Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-mod_mkancil">Modify Mkancil source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-examples">Examples of non-interactive Xancil usage</a></li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="index.html#document-index">Xancil 0.58 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, Jeff Cole.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+    </div>
+  </body>
+</html>
